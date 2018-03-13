@@ -1,6 +1,9 @@
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.models import model_from_json 
+from keras.callbacks import EarlyStopping
+
+import numpy as np
 
 class MLPClassifier:
 
@@ -25,10 +28,20 @@ class MLPClassifier:
 
 		self.model=model
 
-	def train(self,trainX,trainY,epochs):
+	def train(self,trainX,trainY,epochs,use_validation=True,validation_split=0.1):
 		self.model.compile(loss="binary_crossentropy", optimizer="adam", metrics=['accuracy','binary_accuracy'])
-		self.model.fit(trainX,trainY, epochs=epochs, batch_size=10) # epochs=150
+		if use_validation and validation_split >0:
+			#first shuffle array, since keras takes last fraction as validation set
+			rand_perm = np.random.permutation(trainX.shape[0])
+			trainX=trainX[rand_perm,:]
+			trainY=trainY[rand_perm,:]
+			early_stopping = EarlyStopping(monitor='val_loss', patience=2)
+			self.model.fit(trainX,trainY, epochs=epochs, batch_size=10,validation_split=validation_split,
+							callbacks=[early_stopping]) # epochs=150
+		else:
+			self.model.fit(trainX,trainY, epochs=epochs, batch_size=10) # epochs=150
 		self.epochs_trained+=epochs
+		print("Finished total "+str(self.epochs_trained)+" epochs")
 
 		
 	def set_model(self,model):
