@@ -7,7 +7,7 @@ def read_datafile_xcv(data_folder):
 	with open(data_file_name,"r") as data_f:
 		info=data_f.readline().split()
 		assert(len(info)==3)
-		[num_points ,num_features,num_labels] = map(int,info)
+		[num_points ,num_features,num_labels] = [int(x) for x in info]
 
 		allX=np.zeros((num_points,num_features))
 		all_labels=[]
@@ -18,7 +18,7 @@ def read_datafile_xcv(data_folder):
 			l1 = line.split()
 			if(":" not in l1[0]):# label set is not empty
 				labels=l1[0].split(",")
-				labels = sorted(map(int,labels))#0 indexed?
+				labels = sorted([int(x) for x in labels])#0 indexed?
 				l1 = l1[1:]
 			else:
 				labels=[]
@@ -55,7 +55,7 @@ def read_splitfile_xcv(file_name):
 				first=False
 
 			for i in range(0,num_cols):
-				splits[i].append(int(l[i]))
+				splits[i].append(int(l[i])-1)#zero index it
 
 	return splits
 
@@ -96,16 +96,33 @@ def make_label_vectors(all_labels,metadata):
 	num_points=metadata["num_points"]
 	num_labels=metadata["num_labels"]
 	allY=np.zeros((num_points,num_labels))
-	reverse_dict={}
 	for i in range(0,num_points):
 		labels=all_labels[i]
 		for lab in labels:
 			allY[i][lab]=1.0
+	return allY
+
+def create_reverse_dict(all_labels):
+	num_points=len(all_labels)
+	reverse_dict={}
+	for i in range(0,num_points):
+		labels=all_labels[i]
+		for lab in labels:
 			if lab not in reverse_dict:
 				reverse_dict[lab]=[]
 			reverse_dict[lab].append(i)
-	return allY,reverse_dict
+	return reverse_dict
 
+def data_statistics(all_labels,num_labels):
+	statistics={}
+	rev_dict= create_reverse_dict(all_labels)
+	num_points_per_label=[len(rev_dict[k]) for k in rev_dict]
+	sum_points=0
+	for x in num_points_per_label:
+		sum_points +=x
+	avg_points_per_label=float(sum_points)/float(num_labels)
+	statistics["avg_points_per_label"]=avg_points_per_label
+	return statistics
 
 def read_dataset(datasetname):
 
@@ -126,16 +143,15 @@ def read_dataset(datasetname):
 
 	data_folder=foldernames[datasetname]
 	dataset=read_dataset_xcv(data_folder)
-	allY,reverse_dict=make_label_vectors(dataset["sparse_labels"],dataset["metadata"])
+	allY=make_label_vectors(dataset["sparse_labels"],dataset["metadata"])
 	dataset["vector_labels"]=allY
-	dataset["reverse_dict"]=reverse_dict
 	with open(filename,"wb") as fo:
 		pickle.dump(dataset,fo)
 
 	return dataset
 	
 
-# x=read_dataset("mediamill")
+x=read_dataset("mediamill")
 
 
 
