@@ -54,7 +54,7 @@ class MLPClassifier:
 			json_file.write(model_json)
 		self.model.save_weights(filename+'_wts.h5')
 
-	def load(self,foldername,i):
+	def load(self,foldername,i,num_features,num_labels):
 		filename=filename=foldername+"/class_"+str(i)
 		import os
 		if not os.path.exists(filename+"_mod.json"):
@@ -67,6 +67,8 @@ class MLPClassifier:
 		# load weights into new model
 		loaded_model.load_weights(filename+'_wts.h5')
 		self.model=loaded_model
+		self.num_features=num_features
+		self.num_labels=num_labels
 
 		return self
 		
