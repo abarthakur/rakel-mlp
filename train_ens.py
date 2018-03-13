@@ -4,9 +4,11 @@ import pickle
 
 class Ensemble :
 
-	def __init__(self,num_classifiers,num_labels=-1):
+	def __init__(self,num_classifiers,num_labels=-1,num_features=-1,labels_per_classifier=-1):
 		self.num_classifiers=num_classifiers
 		self.num_labels=num_labels
+		self.num_features=num_features
+		self.labels_per_classifier=-1
 		self.classifier_info=[]
 		for i in range(0,num_classifiers):
 			self.classifier_info.append({})
@@ -23,6 +25,8 @@ class Ensemble :
 		dict={}
 		dict["num_classifiers"]=self.num_classifiers
 		dict["num_labels"]=self.num_labels
+		dict["num_features"]=self.num_features
+		dict["labels_per_classifier"]=self.labels_per_classifier
 		dict["classifier_info"]=self.classifier_info
 		import os
 		if not os.path.exists(foldername):
@@ -48,11 +52,14 @@ class Ensemble :
 			return
 		self.num_classifiers=dict["num_classifiers"]
 		self.num_labels=dict["num_labels"]
+		self.num_features=dict["num_features"]
+		self.labels_per_classifier=dict["labels_per_classifier"]
 		self.classifier_info=dict["classifier_info"]
 
 		for i in range(0,self.num_classifiers):
 			self.classifier_list[i]=classifier()
-			self.classifier_list[i]=self.classifier_list[i].load(foldername,i)
+			self.classifier_list[i]=self.classifier_list[i].load(foldername,i,self.num_features,
+															self.labels_per_classifier)
 			if self.classifier_list[i]:
 				self.classifier_list[i].epochs_trained=dict["classifier_info"][i]["epochs_trained"]
 
@@ -66,6 +73,11 @@ class Ensemble :
 				predictions[labels[i]]+=p[i]
 		predictions=predictions/np.sum(predictions)
 		return predictions
+
+
+
+
+
 
 
 def select_pos_training_set(MAX_LABELS,num_labels,all_labels,reverse_dict):
