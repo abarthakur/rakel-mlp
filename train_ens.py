@@ -48,13 +48,13 @@ class Ensemble :
 				self.classifier_list[i].save(foldername,i)
 				dict["classifier_info"][i]["epochs_trained"]=self.classifier_list[i].epochs_trained
 
-		filename=foldername+"/ens.py"
+		filename=foldername+"/ens.p"
 		with open(filename,"wb") as fo:
 			pickle.dump(dict,fo)
 
 	def load(self,foldername,classifier):
 		print("Loading "+foldername)
-		filename=foldername+"/ens.py"
+		filename=foldername+"/ens.p"
 		dict=None
 		with open(filename,"rb") as fi:
 			dict= pickle.load(fi)
