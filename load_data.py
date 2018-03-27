@@ -1,6 +1,7 @@
 import numpy as np
 
-
+#assumes 0 indexed labels, true for XC repository
+#must rename to XC. Where did the v come from?
 def read_datafile_xcv(data_folder):
 	
 	data_file_name=data_folder+"data.txt"
@@ -151,7 +152,7 @@ def read_dataset(datasetname):
 	return dataset
 	
 
-x=read_dataset("mediamill")
+# x=read_dataset("mediamill")
 
 
 
