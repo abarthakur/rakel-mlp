@@ -35,7 +35,7 @@ class MLPClassifier:
 			rand_perm = np.random.permutation(trainX.shape[0])
 			trainX=trainX[rand_perm,:]
 			trainY=trainY[rand_perm,:]
-			early_stopping = EarlyStopping(monitor='val_loss', patience=2)
+			early_stopping = EarlyStopping(monitor='val_loss', patience=5)
 			self.model.fit(trainX,trainY, epochs=epochs, batch_size=10,validation_split=validation_split,
 							callbacks=[early_stopping]) # epochs=150
 		else:
@@ -73,5 +73,5 @@ class MLPClassifier:
 		return self
 		
 	def predict(self,sample):
-		return self.model.predict(sample).reshape((self.num_labels))
+		return self.model.predict(sample.reshape((1,self.num_features))).reshape((self.num_labels))
 
